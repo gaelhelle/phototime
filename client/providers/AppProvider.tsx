@@ -11,27 +11,24 @@ type AppContextType = {
   userName: string;
   setUserName: Dispatch<SetStateAction<string>>;
   userAvatar: any | null;
+  joinedRoom: boolean;
+  setJoinedRoom: Dispatch<SetStateAction<boolean>>;
 };
 
 export const AppContext = createContext<AppContextType>(undefined as any);
 
 export const AppProvider = ({ children }: any) => {
-  const [userId, setUserId] = useState<string>("");
-  const [userName, setUserName] = useState<string>("");
+  const [userId, setUserId] = useState("");
+  const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState<AvatarStyle | null>(null);
+  const [joinedRoom, setJoinedRoom] = useState(false);
 
   useEffect(() => {
-    const existingUserId = Cookies.get("userId");
     const existingUserName = Cookies.get("userName");
     const existingAvatar = Cookies.get("userAvatar");
 
-    if (existingUserId) {
-      setUserId(existingUserId);
-    } else {
-      const newUserId = uuidv4();
-      Cookies.set("userId", newUserId);
-      setUserId(newUserId);
-    }
+    const newUserId = uuidv4();
+    setUserId(newUserId);
 
     if (existingUserName) {
       setUserName(existingUserName);
@@ -42,11 +39,12 @@ export const AppProvider = ({ children }: any) => {
     } else {
       const generatedOptions = generateRandomAvatar();
       setUserAvatar(generatedOptions);
-      Cookies.set("userAvatar", JSON.stringify(generatedOptions));
+
+      if (process.env.NEXT_PUBLIC_USE_COOKIES) Cookies.set("userAvatar", JSON.stringify(generatedOptions));
     }
   }, []);
 
-  const values = { userId, userName, setUserName, userAvatar };
+  const values = { userId, userName, setUserName, userAvatar, joinedRoom, setJoinedRoom };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };
