@@ -7,6 +7,7 @@ import { firebaseCreateRoom, firebaseGetPhotos, firebaseIsRoomAvailable, firebas
 import { clientJoin, clientLeave, clients, gerRoomUsers } from "../utils/clients";
 import bodyParser from "body-parser";
 import { scheduleArchiving } from "./crons";
+import { addRoom, roomType, settingsType } from "../utils/rooms";
 
 const port = 8080;
 const app = express();
@@ -21,16 +22,16 @@ const io = new Server(server, {
 // parse application/json
 app.use(bodyParser.json());
 
-let rooms: any = [];
-
 const timeoutInMilliseconds = 3000; // 1 minute
 
 io.on("connection", (socket) => {
   console.log(`User logged ${socket.id}`);
+  console.log(clients);
 
-  socket.on("joinRoom", (user: any, room: string) => {
+  socket.on("joinRoom", async (user: any, room: string) => {
     const { name, avatar } = user;
     const roomMaster = Boolean(!clients.length);
+
     const client = clientJoin({ id: socket.id, room, roomMaster, name, avatar });
     console.log(`User ${socket.id} joined room ${room}`);
 
@@ -38,9 +39,12 @@ io.on("connection", (socket) => {
     io.to(room).emit("userList", gerRoomUsers(room));
   });
 
-  socket.on("triggerGameStart", (room: string) => {
+  socket.on("triggerGameStart", async (room: string, settings: settingsType) => {
     console.log(`*** game is starting on room ${room} ***`);
-    io.to(room).emit("gameStart");
+
+    const photos = await firebaseGetPhotos();
+
+    io.to(room).emit("gameStart", { photos, settings: { max: 5 } });
   });
 
   socket.on("disconnect", () => {
