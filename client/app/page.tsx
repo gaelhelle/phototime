@@ -3,7 +3,7 @@ import Logo from "@/components/logo";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between py-24 bg-[#292F34] text-white">
+    <main className="flex min-h-screen flex-col items-center justify-between py-24 ">
       <div className="container mx-auto">
         <div className="text-center">
           <Logo />

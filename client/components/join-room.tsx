@@ -36,11 +36,15 @@ export default function JoinRoom({ urlRoomId }: joinRoomType) {
 
   const handleCreateRoom = async () => {
     setCreateRoomLoader(true);
-    const response: any = await fetch("http://localhost:8080/server/create-room", { method: "POST" });
-    const data = await response.json();
-    const roomId = data.id;
-
-    router.push(`/room?id=${roomId}`);
+    try {
+      const response: any = await fetch("http://localhost:8080/server/create-room", { method: "POST" });
+      const data = await response.json();
+      const roomId = data.id;
+      router.push(`/room?id=${roomId}`);
+      setJoinedRoom(true);
+    } catch (err) {
+      console.log(err);
+    }
     setCreateRoomLoader(false);
   };
 

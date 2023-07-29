@@ -4,13 +4,14 @@ import Logo from "@/components/logo";
 import { AppContext } from "@/providers/AppProvider";
 import Avatar from "avataaars";
 import { useSearchParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import { Tooltip } from "react-tooltip";
+import { Socket } from "socket.io-client";
 
 export default function Lobby() {
   const { userId, userName, userAvatar } = useContext(AppContext);
-  const [socketId, setSocketId] = useState("");
+  const [socketId, setSocketId] = useState<string | undefined>("");
 
   const searchParams = useSearchParams();
   const roomId = searchParams.get("id");
@@ -18,12 +19,12 @@ export default function Lobby() {
   const [users, setUsers] = useState([]);
   const [isRoomMaster, setIsRoomMaster] = useState(false);
 
-  const socket = io("http://localhost:8080", { transports: ["websocket"], autoConnect: false });
+  const socket = useRef<Socket | null>(null);
 
-  socket.on("connect", () => {
-    console.log(`Connected on socket: ${socket.id}`);
-    setSocketId(socket.id);
-  });
+  const triggerGameStart = () => {
+    if (!socket.current) return;
+    socket.current.emit("triggerGameStart", roomId);
+  };
 
   useEffect(() => {
     if (!users || !socketId) return;
@@ -34,17 +35,29 @@ export default function Lobby() {
   useEffect(() => {
     if (!roomId || !userId || !userName) return;
 
-    socket.connect();
+    socket.current = io("http://localhost:8080", { transports: ["websocket"], autoConnect: false });
+
     const user = { name: userName, avatar: userAvatar };
 
-    socket.emit("joinRoom", user, roomId);
+    socket.current.on("connect", () => {
+      const socketId = socket.current?.id;
+      if (socketId) {
+        console.log(`Connected on socket: ${socket.current?.id}`);
+        setSocketId(socket.current?.id);
+      }
+    });
 
-    socket.on("userList", (users: any) => {
+    socket.current.on("userList", (users: any) => {
       setUsers(users);
     });
 
+    socket.current.connect();
+    socket.current.emit("joinRoom", user, roomId);
+
     return () => {
-      socket.disconnect();
+      if (socket.current) {
+        socket.current.disconnect();
+      }
     };
   }, []);
 
@@ -53,7 +66,7 @@ export default function Lobby() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between py-24 bg-[#292F34] text-white">
+    <div className="flex min-h-screen flex-col items-center justify-between py-24 ">
       <header className="text-left">
         <Logo />
       </header>
@@ -66,7 +79,7 @@ export default function Lobby() {
                 {isRoomMaster && (
                   <div className="mt-20">
                     <div>
-                      <button type="button" className="bg-primary px-10 py-4 rounded text-center font-semibold cursor-pointer disabled:bg-gray-500">
+                      <button onClick={triggerGameStart} type="button" className="bg-primary px-10 py-4 rounded text-center font-semibold cursor-pointer disabled:bg-gray-500">
                         Start the game
                       </button>
                     </div>
