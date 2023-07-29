@@ -6,3 +6,17 @@ export const generateRoomCode = () => {
 
   return code;
 };
+
+export const generateUniqueRandomNumbers = (max: number, limit: number) => {
+  if (limit > max + 1) {
+    throw new Error("Cannot generate more unique numbers than the range allows.");
+  }
+
+  const uniqueNumbers = new Set();
+  while (uniqueNumbers.size < limit) {
+    const randomNumber = Math.floor(Math.random() * max);
+    uniqueNumbers.add(randomNumber);
+  }
+
+  return Array.from(uniqueNumbers) as number[];
+};

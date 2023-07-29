@@ -3,10 +3,10 @@ import http from "http";
 import cors from "cors";
 import { Server } from "socket.io";
 import { generateRoomCode } from "../utils/utils";
-import { firebaseArchiveRooms, firebaseCreateRoom, firebaseGetUsers, firebaseIsRoomAvailable, firebaseUpdateRoomStatus, handleJoinRoom, handleLeaveRoom } from "../firebase/firebase";
-import cron from "node-cron";
+import { firebaseCreateRoom, firebaseGetPhotos, firebaseIsRoomAvailable, firebaseUpdateRoomStatus } from "../firebase/firebase";
 import { clientJoin, clientLeave, clients, gerRoomUsers } from "../utils/clients";
 import bodyParser from "body-parser";
+import { scheduleArchiving } from "./crons";
 
 const port = 8080;
 const app = express();
@@ -32,11 +32,15 @@ io.on("connection", (socket) => {
     const { name, avatar } = user;
     const roomMaster = Boolean(!clients.length);
     const client = clientJoin({ id: socket.id, room, roomMaster, name, avatar });
+    console.log(`User ${socket.id} joined room ${room}`);
 
     socket.join(room);
     io.to(room).emit("userList", gerRoomUsers(room));
+  });
 
-    // console.log(clients);
+  socket.on("triggerGameStart", (room: string) => {
+    console.log(`*** game is starting on room ${room} ***`);
+    io.to(room).emit("gameStart");
   });
 
   socket.on("disconnect", () => {
@@ -44,16 +48,7 @@ io.on("connection", (socket) => {
     console.log(`user is disconnected ${client?.name}`);
     const room = client?.room ?? "";
     io.to(room).emit("userList", clients);
-    console.log(clients);
-
-    // clearTimeout(timeout);
   });
-
-  // Disconnect the socket if there's no activity within the specified time
-  // const timeout = setTimeout(() => {
-  //   console.log(`Disconnecting idle socket ${socket.id}`);
-  //   socket.disconnect(true);
-  // }, timeoutInMilliseconds);
 });
 
 server.listen(port, () => {
@@ -75,7 +70,7 @@ app.post("/server/join-room", async (req, res) => {
       throw Error;
     }
   } catch (error) {
-    console.error("Error creating room:", error);
+    console.error("Error joining room:", error);
     res.status(500).send({
       error: "Room not available. Please try again later.",
     });
@@ -85,7 +80,10 @@ app.post("/server/join-room", async (req, res) => {
 app.post("/server/create-room", async (req, res) => {
   try {
     const roomId = generateRoomCode();
-    await firebaseCreateRoom(roomId);
+
+    const photos = await firebaseGetPhotos(5);
+    const data = { photos };
+    await firebaseCreateRoom(roomId, data);
     res.status(201).send({
       id: roomId,
     });
@@ -108,19 +106,23 @@ app.post("/server/update-room", async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error creating room:", error);
+    console.error("Error updating room:", error);
     res.status(500).send({
       error: "Failed to update room. Please try again later.",
     });
   }
 });
 
-// Schedule the archiving logic to run every 30 minutes
-cron.schedule("*/30 * * * *", async () => {
+app.get("/server/get-photos", async (req, res) => {
   try {
-    await firebaseArchiveRooms();
-    console.log("Rooms archived successfully.");
+    const limit = req.body?.limit || 5;
+    const response = await firebaseGetPhotos(limit);
+    res.status(201).send(response);
   } catch (error) {
-    console.error("Error archiving rooms:", error);
+    res.status(500).send({
+      error: "Failed to get photos. Please try again later.",
+    });
   }
 });
+
+scheduleArchiving();

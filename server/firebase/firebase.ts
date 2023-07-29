@@ -1,5 +1,6 @@
-import { doc, setDoc, serverTimestamp, collection, where, getDocs, query, updateDoc, getDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, setDoc, collection, where, getDocs, query, updateDoc, getDoc, arrayUnion } from "firebase/firestore";
 import { db } from "./config";
+import { generateUniqueRandomNumbers } from "../utils/utils";
 
 export const firebaseIsRoomAvailable = async (roomId: string) => {
   const roomRef = doc(db, "rooms", roomId);
@@ -8,12 +9,12 @@ export const firebaseIsRoomAvailable = async (roomId: string) => {
   return roomSnapshot.exists();
 };
 
-export const firebaseCreateRoom = (room: string) => {
+export const firebaseCreateRoom = (room: string, data?: any) => {
   const roomRef = doc(db, "rooms", room);
   //   const now = serverTimestamp();
   const now = Date.now();
 
-  setDoc(roomRef, { code: room, status: "pending", createdAt: now })
+  setDoc(roomRef, { code: room, status: "pending", createdAt: now, ...data })
     .then((response) => {
       console.log(response);
     })
@@ -29,18 +30,24 @@ export const firebaseUpdateRoomStatus = async (roomId: string, status: string) =
 };
 
 export const firebaseArchiveRooms = async () => {
+  let response = [];
   const now = Date.now();
   const thirtyMinutesAgo = now - 30 * 60 * 1000;
 
   const roomsCollectionRef = collection(db, "rooms");
-  const q = query(roomsCollectionRef, where("createdAt", "<", thirtyMinutesAgo));
+  // const q = query(roomsCollectionRef, where("createdAt", "<", thirtyMinutesAgo), where("status", "!=", "expired"));
+  const q = query(roomsCollectionRef, where("status", "!=", "expired"));
   const querySnapshot = await getDocs(q);
+
+  response = querySnapshot.docs.map((doc) => doc.id);
 
   // Update the status of matching documents
   for (const docSnap of querySnapshot.docs) {
     const roomRef = doc(roomsCollectionRef.firestore, "rooms", docSnap.id);
     await updateDoc(roomRef, { status: "expired" });
   }
+
+  return response;
 };
 
 export async function handleJoinRoom(socket: any, roomId: string, userId: string, userName: string) {
@@ -96,6 +103,22 @@ export async function firebaseGetUsers(roomId: string) {
 
     return users;
   } catch (error) {
+    throw error;
+  }
+}
+
+export async function firebaseGetPhotos(limit = 5) {
+  const randomPhotos: any = [];
+
+  try {
+    const photosCollectionRef = collection(db, "photos");
+    const totalPhotos = await getDocs(photosCollectionRef);
+    const randomPhotoIds: number[] = generateUniqueRandomNumbers(totalPhotos.size, limit);
+    const randomPhotos = randomPhotoIds.map((id) => totalPhotos.docs[id]?.data());
+
+    return randomPhotos;
+  } catch (error) {
+    console.log(error);
     throw error;
   }
 }
