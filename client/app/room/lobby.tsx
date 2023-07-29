@@ -14,6 +14,8 @@ export default function Lobby() {
   const [socketId, setSocketId] = useState<string | undefined>("");
 
   const searchParams = useSearchParams();
+  const inviteLink = window.location.href;
+
   const roomId = searchParams.get("id");
 
   const [users, setUsers] = useState([]);
@@ -24,6 +26,17 @@ export default function Lobby() {
   const triggerGameStart = () => {
     if (!socket.current) return;
     socket.current.emit("triggerGameStart", roomId);
+  };
+
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).then(
+      function () {
+        console.log(`Copied to clipboard: ${text}`);
+      },
+      function (err) {
+        console.error("Could not copy text: ", err);
+      }
+    );
   };
 
   useEffect(() => {
@@ -99,26 +112,39 @@ export default function Lobby() {
                 )}
               </div>
             </div>
-            <div className="bg-[#2E373E] rounded-lg min-w-[400px] pb-6">
-              <h2 className="font-semibold px-10 py-6">Players ({users.length})</h2>
-              <div className="bg-[#252D33]">
-                {users?.map((user: any) => (
-                  <div className="px-10 py-3 flex gap-2 items-center" key={user.id}>
-                    <Avatar style={{ width: "48px", height: "48px" }} avatarStyle={user.avatar.style} topType={user.avatar.topType} accessoriesType={user.avatar.accessoriesType} hairColor={user.avatar.hairColor} facialHairType={user.avatar.facialHairType} clotheType={user.avatar.clotheType} clotheColor={user.avatar.clotheColor} eyeType={user.avatar.eyeType} eyebrowType={user.avatar.eyebrowType} mouthType={user.avatar.mouthType} skinColor={user.avatar.skinColor} />
-                    <span>
-                      {user.name} {socketId === user.id && <span>(You)</span>}
+            <div className="min-w-[400px]">
+              <div className="bg-[#2E373E] rounded-lg pb-6 mb-6">
+                <h2 className="font-semibold px-10 py-6">Players ({users.length})</h2>
+                <div className="bg-[#252D33]">
+                  {users?.map((user: any) => (
+                    <div className="px-10 py-3 flex gap-2 items-center" key={user.id}>
+                      <Avatar style={{ width: "48px", height: "48px" }} avatarStyle={user.avatar.style} topType={user.avatar.topType} accessoriesType={user.avatar.accessoriesType} hairColor={user.avatar.hairColor} facialHairType={user.avatar.facialHairType} clotheType={user.avatar.clotheType} clotheColor={user.avatar.clotheColor} eyeType={user.avatar.eyeType} eyebrowType={user.avatar.eyebrowType} mouthType={user.avatar.mouthType} skinColor={user.avatar.skinColor} />
+                      <span>
+                        {user.name} {socketId === user.id && <span>(You)</span>}
+                      </span>
+                      {user.roomMaster && (
+                        <>
+                          <Tooltip id="tooltip-host" content="Host of the room" />
+                          <svg data-tooltip-id="tooltip-host" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-[#E89029]">
+                            <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
+                          </svg>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="bg-[#2E373E] rounded-lg px-10 py-6">
+                <h3 className="mb-4">Invite your friends</h3>
+                <div className="inline-flex gap-4 items-center">
+                  <div className="text-sm text-gray-400">{inviteLink}</div>
+                  <div>
+                    <Tooltip id="tooltip-copy-to-clipboard" content="Copied to clipboard!" delayHide={2000} openOnClick />
+                    <span data-tooltip-id="tooltip-copy-to-clipboard" className="px-3 py-1.5 rounded-lg bg-secondary text-sm cursor-pointer hover:opacity-80" onClick={() => handleCopyToClipboard(inviteLink)}>
+                      Copy
                     </span>
-                    {user.roomMaster && (
-                      <>
-                        <Tooltip id="my-tooltip" content="Host of the room" />
-
-                        <svg data-tooltip-id="my-tooltip" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-[#E89029]">
-                          <path fillRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clipRule="evenodd" />
-                        </svg>
-                      </>
-                    )}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
