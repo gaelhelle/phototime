@@ -108,13 +108,13 @@ export async function firebaseGetUsers(roomId: string) {
 }
 
 export async function firebaseGetPhotos(limit = 5) {
-  const randomPhotos: any = [];
+  let randomPhotos: any = [];
 
   try {
     const photosCollectionRef = collection(db, "photos");
     const totalPhotos = await getDocs(photosCollectionRef);
     const randomPhotoIds: number[] = generateUniqueRandomNumbers(totalPhotos.size, limit);
-    const randomPhotos = randomPhotoIds.map((id) => totalPhotos.docs[id]?.data());
+    randomPhotos = randomPhotoIds.map((id) => totalPhotos.docs[id]?.data());
 
     return randomPhotos;
   } catch (error) {

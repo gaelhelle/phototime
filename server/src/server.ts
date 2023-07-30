@@ -40,11 +40,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("triggerGameStart", async (room: string, settings: settingsType) => {
-    console.log(`*** game is starting on room ${room} ***`);
+    console.log(`*** game is starting on room ${room}  - ${settings.max} rounds ***`);
 
-    const photos = await firebaseGetPhotos();
+    const photos = await firebaseGetPhotos(settings?.max);
 
-    io.to(room).emit("gameStart", { photos, settings: { max: 5 } });
+    io.to(room).emit("gameStart", { photos, settings });
   });
 
   socket.on("disconnect", () => {

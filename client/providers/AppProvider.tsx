@@ -10,7 +10,8 @@ type AppContextType = {
   userId: string | null;
   userName: string;
   setUserName: Dispatch<SetStateAction<string>>;
-  userAvatar: any | null;
+  userAvatar: any;
+  setUserAvatar: Dispatch<SetStateAction<any>>;
   joinedRoom: boolean;
   setJoinedRoom: Dispatch<SetStateAction<boolean>>;
 };
@@ -39,12 +40,18 @@ export const AppProvider = ({ children }: any) => {
     } else {
       const generatedOptions = generateRandomAvatar();
       setUserAvatar(generatedOptions);
-
-      if (process.env.NEXT_PUBLIC_USE_COOKIES) Cookies.set("userAvatar", JSON.stringify(generatedOptions));
     }
   }, []);
 
-  const values = { userId, userName, setUserName, userAvatar, joinedRoom, setJoinedRoom };
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_USE_COOKIES) Cookies.set("userName", userName);
+  }, [userName]);
+
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_USE_COOKIES) Cookies.set("userAvatar", JSON.stringify(userAvatar));
+  }, [userAvatar]);
+
+  const values = { userId, userName, setUserName, userAvatar, setUserAvatar, joinedRoom, setJoinedRoom };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };
