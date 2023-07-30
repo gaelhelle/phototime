@@ -4,14 +4,14 @@ import Logo from "@/components/logo";
 import { AppContext } from "@/providers/AppProvider";
 import Avatar from "avataaars";
 import { useSearchParams } from "next/navigation";
-import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
-import io from "socket.io-client";
+import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
-import { Socket } from "socket.io-client";
 import GameStarted from "@/components/game-started";
+import { SocketContext } from "@/providers/SocketProvider";
 
 export default function Lobby() {
   const { userId, userName, userAvatar } = useContext(AppContext);
+  const { socket } = useContext(SocketContext);
   const [socketId, setSocketId] = useState<string | undefined>("");
   const [users, setUsers] = useState([]);
   const [isRoomMaster, setIsRoomMaster] = useState(false);
@@ -20,16 +20,15 @@ export default function Lobby() {
   const [showSettings, setShowSettings] = useState(false);
   const [maxRounds, setMaxRounds] = useState(5);
 
-  const socket = useRef<Socket | null>(null);
   const searchParams = useSearchParams();
 
   const inviteLink = window.location.href;
   const roomId = searchParams.get("id");
 
   const triggerGameStart = () => {
-    if (!socket.current) return;
+    if (!socket) return;
     const settings = { max: maxRounds };
-    socket.current.emit("triggerGameStart", roomId, settings);
+    socket.emit("triggerGameStart", roomId, settings);
   };
 
   const handleChangeMaxRounds = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -58,35 +57,33 @@ export default function Lobby() {
   }, [users, socketId]);
 
   useEffect(() => {
-    if (!roomId || !userId || !userName) return;
-
-    socket.current = io("http://localhost:8080", { transports: ["websocket"], autoConnect: false });
+    if (!roomId || !userId || !userName || !socket) return;
 
     const user = { name: userName, avatar: userAvatar };
 
-    socket.current.on("connect", () => {
-      const socketId = socket.current?.id;
+    socket.on("connect", () => {
+      const socketId = socket?.id;
       if (socketId) {
-        console.log(`Connected on socket: ${socket.current?.id}`);
-        setSocketId(socket.current?.id);
+        console.log(`Connected on socket: ${socket?.id}`);
+        setSocketId(socket?.id);
       }
     });
 
-    socket.current.on("userList", (users: any) => {
+    socket.on("userList", (users: any) => {
       setUsers(users);
     });
 
-    socket.current.on("gameStart", (gameData: any) => {
+    socket.on("gameStart", (gameData: any) => {
       setGameStarted(true);
       setGameData(gameData);
     });
 
-    socket.current.connect();
-    socket.current.emit("joinRoom", user, roomId);
+    socket.connect();
+    socket.emit("joinRoom", user, roomId);
 
     return () => {
-      if (socket.current) {
-        socket.current.disconnect();
+      if (socket) {
+        socket.disconnect();
       }
     };
   }, []);

@@ -42,8 +42,8 @@ h2 {
   position: absolute;
 }
 
-.example-mark:nth-child(10n) {
-  height: 28px;
+.example-mark:nth-child(10n + 14) {
+  height: 29px;
   opacity: 1;
   top: calc(50% - 10px);
   border-radius: 20px;
