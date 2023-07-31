@@ -10,7 +10,7 @@ type SocketContextType = {
 export const SocketContext = createContext<SocketContextType>(undefined as any);
 
 export const SocketProvider = ({ children }: any) => {
-  const socket = io("http://localhost:8080", { transports: ["websocket"], autoConnect: false });
+  const socket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}`, { transports: ["websocket"], autoConnect: false });
 
   const values = { socket };
 

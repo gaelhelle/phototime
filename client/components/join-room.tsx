@@ -16,6 +16,7 @@ export default function JoinRoom({ urlRoomId }: joinRoomType) {
   const [createRoomLoader, setCreateRoomLoader] = useState(false);
   const [roomId, setRoomId] = useState(urlRoomId || "");
   const [joinRoomError, setJoinRoomError] = useState(false);
+  const [createRoomError, setCreateRoomError] = useState(false);
   const router = useRouter();
 
   const handleGenerateRandomAvatar = () => {
@@ -33,13 +34,16 @@ export default function JoinRoom({ urlRoomId }: joinRoomType) {
 
   const handleCreateRoom = async () => {
     setCreateRoomLoader(true);
+    setCreateRoomError(false);
+
     try {
-      const response: any = await fetch("http://localhost:8080/server/create-room", { method: "POST" });
+      const response: any = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/server/create-room`, { method: "POST" });
       const data = await response.json();
       const roomId = data.id;
       router.push(`/room?id=${roomId}`);
       setJoinedRoom(true);
     } catch (err) {
+      setCreateRoomError(true);
       console.log(err);
     }
     setCreateRoomLoader(false);
@@ -93,15 +97,20 @@ export default function JoinRoom({ urlRoomId }: joinRoomType) {
           </div>
         </div>
         <div className="bg-[#2E373E] rounded-lg p-10 lg:min-w-[400px]">
-          <div className="relative flex items-center h-[56px]">
-            <input type="text" title="username" className="bg-[#424E57] p-4 rounded-lg w-full rounded-r-none h-full" placeholder="Enter room ID" required onChange={handleChangRoomId} value={roomId} />
-            <button className="bg-secondary px-10 rounded text-center font-semibold h-full  hover:opacity-80 active:scale-95 transition-all">Join</button>
+          <div>
+            <div className="relative flex items-center h-[56px]">
+              <input type="text" title="username" className="bg-[#424E57] p-4 rounded-lg w-full rounded-r-none h-full" placeholder="Enter room ID" required onChange={handleChangRoomId} value={roomId} />
+              <button className="bg-secondary px-10 rounded text-center font-semibold h-full  hover:opacity-80 active:scale-95 transition-all">Join</button>
+            </div>
+            {joinRoomError && <div className="text-red-500 text-center py-2">Room not available</div>}
           </div>
-          {joinRoomError && <div className="text-red-500 text-center py-2">Room not available</div>}
           <div className="text-center py-4">or</div>
-          <button type="button" onClick={handleCreateRoom} disabled={!userName || createRoomLoader} className="bg-primary px-10 py-4 rounded text-center font-semibold w-full cursor-pointer disabled:bg-gray-500 disabled:cursor-default hover:opacity-80 active:scale-95 transition-all">
-            {createRoomLoader ? "Loading" : "Create Private Room"}
-          </button>
+          <div>
+            <button type="button" onClick={handleCreateRoom} disabled={!userName || createRoomLoader} className="bg-primary px-10 py-4 rounded text-center font-semibold w-full cursor-pointer disabled:bg-gray-500 disabled:cursor-default hover:opacity-80 active:scale-95 transition-all">
+              {createRoomLoader ? "Loading" : "Create Private Room"}
+            </button>
+            {createRoomError && <div className="text-red-500 text-center py-2">Service not available</div>}
+          </div>
         </div>
       </div>
     </form>
