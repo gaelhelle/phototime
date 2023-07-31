@@ -6,6 +6,7 @@ import Avatar from "avataaars";
 import Cookies from "js-cookie";
 import { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SocketContext } from "@/providers/SocketProvider";
 
 interface joinRoomType {
   urlRoomId?: string | null;

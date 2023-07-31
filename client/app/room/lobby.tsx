@@ -51,6 +51,13 @@ export default function Lobby() {
     setShowSettings((state) => !state);
   };
 
+  const handleDisconnect = () => {
+    console.log(socket);
+    socket.disconnect();
+    console.log(socket);
+    socket.connect();
+  };
+
   useEffect(() => {
     if (!users || !socketId) return;
     const user: any = users.find((user: any) => user.id === socketId);
@@ -69,8 +76,16 @@ export default function Lobby() {
     socket.on("connect", () => {
       const socketId = socket?.id;
       if (socketId) {
-        console.log(`Connected on socket: ${socket?.id}`);
-        setSocketId(socket?.id);
+        console.log(`Connected on socket: ${socketId}`);
+        setSocketId(socketId);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      const socketId = socket?.id;
+      if (socketId) {
+        console.log(`Disconnected on socket: ${socketId}`);
+        setSocketId(socketId);
       }
     });
 
@@ -111,6 +126,9 @@ export default function Lobby() {
               ) : (
                 <div className="text-center w-full">
                   <h2>Waiting for the game to start</h2>
+                  <button type="button" onClick={handleDisconnect}>
+                    Disconnect
+                  </button>
                   {isRoomMaster && (
                     <div className="mt-20">
                       <div>
