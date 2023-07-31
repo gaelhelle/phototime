@@ -26,6 +26,7 @@ export default function Lobby() {
   const roomId = searchParams.get("id");
 
   const triggerGameStart = () => {
+    console.log({ socket, roomId, maxRounds });
     if (!socket) return;
     const settings = { max: maxRounds };
     socket.emit("triggerGameStart", roomId, settings);
@@ -182,7 +183,7 @@ export default function Lobby() {
                               const perfect = Number(gameData.photos[i].year) === user.answers[i];
 
                               return (
-                                <>
+                                <div key={`answers-${user.id}-${i}`}>
                                   {perfect && <Tooltip id={`tooltip-answer-${i}`} content="Found the exact year 🔥" />}
                                   <span data-tooltip-id={`tooltip-answer-${i}`} className={`w-4 h-4 rounded-full flex items-center justify-center ${done ? "bg-none" : "bg-black/20"} ${perfect ? "text-green-400" : "text-white"}`} key={`select-round-${i}`}>
                                     {done ? (
@@ -191,7 +192,7 @@ export default function Lobby() {
                                       </svg>
                                     ) : null}
                                   </span>
-                                </>
+                                </div>
                               );
                             })}
                           </div>

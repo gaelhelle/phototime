@@ -64,23 +64,25 @@ export default function GameStarted(props: GameStartedProps | any) {
         min={Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR)}
         max={Number(process.env.NEXT_PUBLIC_GAME_MAX_YEAR)}
         marks={1}
-        markClassName="example-mark"
         renderMark={(props) => {
           const leftPosition = ((Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR) + Number(props.key) - Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR)) / (Number(process.env.NEXT_PUBLIC_GAME_MAX_YEAR) - Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR))) * 92 + "%";
-
-          props.style = {
+          const style = {
             left: leftPosition,
           };
-          return <span {...props} />;
+          return <span key={props.key} style={style} className="example-mark" />;
         }}
         thumbClassName="example-thumb"
         trackClassName="example-track"
-        renderThumb={(props, state) => (
-          <div {...props}>
-            <span>{state.valueNow}</span>
-            <span className="example-thumb-indicator" />
-          </div>
-        )}
+        renderThumb={(props, state) => {
+          const key = props.key;
+          delete props["key"];
+          return (
+            <div key={key} {...props} className="example-thumb">
+              <span>{state.valueNow}</span>
+              <span className="example-thumb-indicator" />
+            </div>
+          );
+        }}
       />
       <br />
       <div className="text-center mt-6">
