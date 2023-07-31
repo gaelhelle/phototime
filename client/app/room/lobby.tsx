@@ -81,14 +81,6 @@ export default function Lobby() {
       }
     });
 
-    socket.on("disconnect", () => {
-      const socketId = socket?.id;
-      if (socketId) {
-        console.log(`Disconnected on socket: ${socketId}`);
-        setSocketId(socketId);
-      }
-    });
-
     socket.on("userList", (users: any) => {
       setUsers(users);
     });
@@ -113,10 +105,8 @@ export default function Lobby() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between py-24">
-      <header className="text-left">
-        <Logo />
-      </header>
+    <div className="flex min-h-screen flex-col items-center justify-between py-12 pb-24">
+      <Logo type="small" />
       <main className="w-full h-full flex-1 flex">
         <div className="container mx-auto flex-1">
           <div className="flex gap-10 w-full items-start">
@@ -126,9 +116,6 @@ export default function Lobby() {
               ) : (
                 <div className="text-center w-full">
                   <h2>Waiting for the game to start</h2>
-                  <button type="button" onClick={handleDisconnect}>
-                    Disconnect
-                  </button>
                   {isRoomMaster && (
                     <div className="mt-20">
                       <div>
