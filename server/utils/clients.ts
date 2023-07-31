@@ -30,12 +30,12 @@ export const getCurrentUser = (id: string) => {
   return clients.find((client) => client.id === id);
 };
 
-export const gerRoomUsers = (room: string) => {
+export const getRoomUsers = (room: string) => {
   return clients.filter((client) => client.room === room);
 };
 
-export const gerUserRoomId = (id: string) => {
-  return clients.find((client) => client.id === id)?.room;
+export const getUserRoomId = (id: string) => {
+  return clients.find((client) => client.id === id)?.room ?? "";
 };
 
 export const updateClientAnswers = (socketId: string, answer: number) => {

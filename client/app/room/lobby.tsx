@@ -60,6 +60,10 @@ export default function Lobby() {
   useEffect(() => {
     if (!roomId || !userId || !userName || !socket) return;
 
+    if (socket.connected) {
+      socket.disconnect();
+    }
+
     const user = { name: userName, avatar: userAvatar };
 
     socket.on("connect", () => {
@@ -87,7 +91,7 @@ export default function Lobby() {
         socket.disconnect();
       }
     };
-  }, []);
+  }, [roomId]);
 
   if (!roomId || !userId || !userName) {
     return <div>Impossible to connect, please reload</div>;
