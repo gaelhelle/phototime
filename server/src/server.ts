@@ -4,7 +4,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { generateRoomCode } from "../utils/utils";
 import { firebaseCreateRoom, firebaseGetPhotos, firebaseIsRoomAvailable, firebaseUpdateRoomStatus } from "../firebase/firebase";
-import { clientJoin, clientLeave, clients, getRoomUsers, getUserRoomId, updateClientAnswers } from "../utils/clients";
+import { clientJoin, clientLeave, clients, getRoomClients, getUserRoomId, updateClientAnswers } from "../utils/clients";
 import bodyParser from "body-parser";
 import { scheduleArchiving } from "./crons";
 import { settingsType } from "../utils/rooms";
@@ -35,7 +35,7 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined room ${room}`);
 
     socket.join(room);
-    io.to(room).emit("userList", getRoomUsers(room));
+    io.to(room).emit("userList", getRoomClients(room));
   });
 
   socket.on("triggerGameStart", async (room: string, settings: settingsType) => {
@@ -52,19 +52,16 @@ io.on("connection", (socket) => {
   });
 
   socket.on("game:send-answer", async (answer: number) => {
-    const client = updateClientAnswers(socket.id, answer);
-    if (!client) return;
-
     const room = getUserRoomId(socket.id);
-    io.to(room).emit("userList", getRoomUsers(client?.room));
+    const client = updateClientAnswers(socket.id, answer);
+    io.to(room).emit("userList", getRoomClients(room));
   });
 
   socket.on("disconnect", () => {
     const room = getUserRoomId(socket.id);
     const client = clientLeave(socket.id);
-    if (!client) return;
     console.log(`user is disconnected ${client?.name}`);
-    io.to(room).emit("userList", clients);
+    io.to(room).emit("userList", getRoomClients(room));
   });
 });
 

@@ -30,7 +30,7 @@ export const getCurrentUser = (id: string) => {
   return clients.find((client) => client.id === id);
 };
 
-export const getRoomUsers = (room: string) => {
+export const getRoomClients = (room: string) => {
   return clients.filter((client) => client.room === room);
 };
 
