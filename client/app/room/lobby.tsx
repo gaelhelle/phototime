@@ -176,10 +176,24 @@ export default function Lobby() {
                           )}
                         </div>
                         {gameData?.settings?.max && (
-                          <div className="grid grid-cols-5 gap-1.5">
-                            {[...Array(gameData?.settings?.max)].map((x, i) => (
-                              <span className="w-4 h-4 rounded-full bg-black/20 block" key={`select-round-${i}`} />
-                            ))}
+                          <div className="grid grid-cols-5 gap-1.5 text-sm">
+                            {[...Array(gameData?.settings?.max)].map((x, i) => {
+                              const done = user.answers[i];
+                              const perfect = Number(gameData.photos[i].year) === user.answers[i];
+
+                              return (
+                                <>
+                                  {perfect && <Tooltip id={`tooltip-answer-${i}`} content="Found the exact year 🔥" />}
+                                  <span data-tooltip-id={`tooltip-answer-${i}`} className={`w-4 h-4 rounded-full flex items-center justify-center ${done ? "bg-none" : "bg-black/20"} ${perfect ? "text-green-400" : "text-white"}`} key={`select-round-${i}`}>
+                                    {done ? (
+                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    ) : null}
+                                  </span>
+                                </>
+                              );
+                            })}
                           </div>
                         )}
                       </div>

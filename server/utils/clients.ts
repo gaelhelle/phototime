@@ -4,11 +4,13 @@ export interface clientType {
   room: string;
   name: string;
   avatar?: any;
+  answers: number[];
+  scores: number[];
 }
 export const clients: clientType[] = [];
 
 export const clientJoin = ({ id, room, roomMaster, name, avatar }: clientType) => {
-  const client = { id, room, roomMaster, name, avatar };
+  const client = { id, room, roomMaster, name, avatar, answers: [], scores: [] };
   clients.push(client);
   return client;
 };
@@ -30,4 +32,15 @@ export const getCurrentUser = (id: string) => {
 
 export const gerRoomUsers = (room: string) => {
   return clients.filter((client) => client.room === room);
+};
+
+export const gerUserRoomId = (id: string) => {
+  return clients.find((client) => client.id === id)?.room;
+};
+
+export const updateClientAnswers = (socketId: string, answer: number) => {
+  const client = clients.find((client) => client.id === socketId);
+  if (!client) return;
+  client["answers"].push(answer);
+  return client;
 };

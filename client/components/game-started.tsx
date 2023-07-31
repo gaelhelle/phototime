@@ -1,25 +1,34 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import ReactSlider from "react-slider";
 import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
-import PrismaZoom from "react-prismazoom";
+import { SocketContext } from "@/providers/SocketProvider";
 
 interface GameStartedProps {}
 
 export default function GameStarted(props: GameStartedProps | any) {
   const { photos, settings } = props.data;
+  const { socket } = useContext(SocketContext);
 
+  const defaultSliderValue = Math.round((Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR) + Number(process.env.NEXT_PUBLIC_GAME_MAX_YEAR)) / 2);
+  const [sliderValue, setSliderValue] = useState(defaultSliderValue);
   const [current, setCurrent] = useState(0);
   const [scale, setScale] = useState(0);
   const divRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = () => {
+    socket.emit("game:send-answer", sliderValue);
     setScale(0);
     setCurrent((state) => state + 1);
+    setSliderValue(defaultSliderValue);
   };
 
   if (current > settings?.max - 1) {
     return <div>Game finished</div>;
   }
+
+  const handleSliderChange = (value: number) => {
+    setSliderValue(value);
+  };
 
   const handleOnImageLoad = (e: any) => {
     if (e.target && divRef.current) {
@@ -50,9 +59,10 @@ export default function GameStarted(props: GameStartedProps | any) {
 
       <ReactSlider
         className="horizontal-slider"
+        value={sliderValue}
+        onChange={handleSliderChange}
         min={Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR)}
         max={Number(process.env.NEXT_PUBLIC_GAME_MAX_YEAR)}
-        defaultValue={Math.round((Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR) + Number(process.env.NEXT_PUBLIC_GAME_MAX_YEAR)) / 2)}
         marks={1}
         markClassName="example-mark"
         renderMark={(props) => {

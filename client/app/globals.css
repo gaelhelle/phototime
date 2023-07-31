@@ -20,12 +20,10 @@ h2 {
 
 .example-thumb {
   @apply bg-primary text-white px-4 py-3 rounded-lg cursor-col-resize -ml-[40px] -top-[50px] text-xl;
-
-  .example-thumb-indicator {
-    @apply bg-primary h-[40px] w-[8px] -ml-[2px] block content-[""] absolute top-full mt-2 left-1/2 rounded-lg;
-  }
 }
-
+.example-thumb-indicator {
+  @apply bg-primary h-[40px] w-[8px] -ml-[2px] block content-[""] absolute top-full mt-2 left-1/2 rounded-lg;
+}
 .horizontal-slider {
   @apply left-[43px];
 }

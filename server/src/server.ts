@@ -4,7 +4,7 @@ import cors from "cors";
 import { Server } from "socket.io";
 import { generateRoomCode } from "../utils/utils";
 import { firebaseCreateRoom, firebaseGetPhotos, firebaseIsRoomAvailable, firebaseUpdateRoomStatus } from "../firebase/firebase";
-import { clientJoin, clientLeave, clients, gerRoomUsers } from "../utils/clients";
+import { clientJoin, clientLeave, clients, gerRoomUsers, gerUserRoomId, updateClientAnswers } from "../utils/clients";
 import bodyParser from "body-parser";
 import { scheduleArchiving } from "./crons";
 import { addRoom, roomType, settingsType } from "../utils/rooms";
@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     const { name, avatar } = user;
     const roomMaster = Boolean(!clients.length);
 
-    const client = clientJoin({ id: socket.id, room, roomMaster, name, avatar });
+    const client = clientJoin({ id: socket.id, room, roomMaster, name, avatar, answers: [], scores: [] });
     console.log(`User ${socket.id} joined room ${room}`);
 
     socket.join(room);
@@ -45,6 +45,14 @@ io.on("connection", (socket) => {
     const photos = await firebaseGetPhotos(settings?.max);
 
     io.to(room).emit("gameStart", { photos, settings });
+  });
+
+  socket.on("game:send-answer", async (answer: number) => {
+    // const room = gerUserRoomId(socket.id);
+    const client = updateClientAnswers(socket.id, answer);
+
+    if (!client?.room) return;
+    io.to(client?.room).emit("userList", gerRoomUsers(client?.room));
   });
 
   socket.on("disconnect", () => {
