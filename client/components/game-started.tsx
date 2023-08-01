@@ -23,7 +23,12 @@ export default function GameStarted(props: GameStartedProps | any) {
   };
 
   if (current > settings?.max - 1) {
-    return <div>Game finished</div>;
+    return (
+      <div>
+        <h2>Thanks for playing</h2>
+        <div>Waiting for other players to finish</div>
+      </div>
+    );
   }
 
   const handleSliderChange = (value: number) => {

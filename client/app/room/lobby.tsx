@@ -8,6 +8,7 @@ import { ChangeEvent, useContext, useEffect, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import GameStarted from "@/components/game-started";
 import { SocketContext } from "@/providers/SocketProvider";
+import Leaderboard from "@/components/leaderboard";
 
 export default function Lobby() {
   const { userId, userName, userAvatar } = useContext(AppContext);
@@ -17,6 +18,7 @@ export default function Lobby() {
   const [isRoomMaster, setIsRoomMaster] = useState(false);
   const [gameData, setGameData] = useState<any>({});
   const [gameStarted, setGameStarted] = useState(false);
+  const [gameFinished, setGameFinished] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [maxRounds, setMaxRounds] = useState(5);
 
@@ -51,13 +53,6 @@ export default function Lobby() {
     setShowSettings((state) => !state);
   };
 
-  const handleDisconnect = () => {
-    console.log(socket);
-    socket.disconnect();
-    console.log(socket);
-    socket.connect();
-  };
-
   useEffect(() => {
     if (!users || !socketId) return;
     const user: any = users.find((user: any) => user.id === socketId);
@@ -90,6 +85,10 @@ export default function Lobby() {
       setGameData(gameData);
     });
 
+    socket.on("room:status:finished", () => {
+      setGameFinished(true);
+    });
+
     socket.connect();
     socket.emit("room:new-client", user, roomId);
 
@@ -111,7 +110,9 @@ export default function Lobby() {
         <div className="container mx-auto flex-1">
           <div className="flex gap-10 w-full items-start">
             <div className="bg-[#2E373E] rounded-lg flex-1 p-10 flex items-center justify-center min-h-[600px]">
-              {gameStarted ? (
+              {gameFinished ? (
+                <Leaderboard users={users} />
+              ) : gameStarted ? (
                 <GameStarted data={gameData} />
               ) : (
                 <div className="text-center w-full">
