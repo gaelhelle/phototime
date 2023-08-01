@@ -29,7 +29,7 @@ export default function Lobby() {
     console.log({ socket, roomId, maxRounds });
     if (!socket) return;
     const settings = { max: maxRounds };
-    socket.emit("triggerGameStart", roomId, settings);
+    socket.emit("room:status:trigger-start", roomId, settings);
   };
 
   const handleChangeMaxRounds = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -81,17 +81,17 @@ export default function Lobby() {
       }
     });
 
-    socket.on("userList", (users: any) => {
+    socket.on("room:users", (users: any) => {
       setUsers(users);
     });
 
-    socket.on("gameStart", (gameData: any) => {
+    socket.on("room:status:started", (gameData: any) => {
       setGameStarted(true);
       setGameData(gameData);
     });
 
     socket.connect();
-    socket.emit("joinRoom", user, roomId);
+    socket.emit("room:new-client", user, roomId);
 
     return () => {
       if (socket) {

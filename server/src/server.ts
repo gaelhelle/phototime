@@ -7,7 +7,7 @@ import { firebaseCreateRoom, firebaseGetPhotos, firebaseIsRoomAvailable, firebas
 import { clientJoin, clientLeave, clients, getRoomClients, getUserRoomId, updateClientAnswers } from "../utils/clients";
 import bodyParser from "body-parser";
 import { scheduleArchiving } from "./crons";
-import { settingsType } from "../utils/rooms";
+import { addRoom, deleteRoom, isGameFinished, settingsType } from "../utils/rooms";
 
 const port = 8080;
 const app = express();
@@ -19,15 +19,11 @@ const io = new Server(server, {
   },
 });
 
-// parse application/json
-app.use(bodyParser.json());
-
-const timeoutInMilliseconds = 3000; // 1 minute
-
+// Socket IO details
 io.on("connection", (socket) => {
   console.log(`User logged ${socket.id}`);
 
-  socket.on("joinRoom", async (user: any, room: string) => {
+  socket.on("room:new-client", async (user: any, room: string) => {
     const { name, avatar } = user;
     const clientsInRoom = clients.filter((client) => client.room === room);
     const roomMaster = !Boolean(clientsInRoom.length);
@@ -35,10 +31,10 @@ io.on("connection", (socket) => {
     console.log(`User ${socket.id} joined room ${room}`);
 
     socket.join(room);
-    io.to(room).emit("userList", getRoomClients(room));
+    io.to(room).emit("room:users", getRoomClients(room));
   });
 
-  socket.on("triggerGameStart", async (room: string, settings: settingsType) => {
+  socket.on("room:status:trigger-start", async (room: string, settings: settingsType) => {
     console.log(`*** game is starting on room ${room}  - ${settings.max} rounds ***`);
     let photos: any = [];
 
@@ -48,20 +44,28 @@ io.on("connection", (socket) => {
       console.log(error);
     }
 
-    io.to(room).emit("gameStart", { photos, settings });
+    const serverRoom = addRoom({ id: room, photos, settings });
+
+    io.to(room).emit("room:status:started", serverRoom);
   });
 
-  socket.on("game:send-answer", async (answer: number) => {
+  socket.on("room:send-answer", async (answer: number) => {
     const room = getUserRoomId(socket.id);
     const client = updateClientAnswers(socket.id, answer);
-    io.to(room).emit("userList", getRoomClients(room));
+    console.log(client);
+    io.to(room).emit("room:users", getRoomClients(room));
+
+    const gameIsFinished = isGameFinished(room);
+
+    if (gameIsFinished) io.to(room).emit("room:status:finished");
   });
 
   socket.on("disconnect", () => {
     const room = getUserRoomId(socket.id);
     const client = clientLeave(socket.id);
     console.log(`user is disconnected ${client?.name}`);
-    io.to(room).emit("userList", getRoomClients(room));
+    io.to(room).emit("room:users", getRoomClients(room));
+    if (!getRoomClients(room).length) deleteRoom(room);
   });
 });
 
@@ -69,6 +73,8 @@ server.listen(port, () => {
   console.log(`Listening to the server on ${port}`);
 });
 
+// API Server
+app.use(bodyParser.json());
 app.use(cors());
 
 app.post("/server/join-room", async (req, res) => {

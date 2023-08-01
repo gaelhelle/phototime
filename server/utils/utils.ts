@@ -21,6 +21,13 @@ export const generateUniqueRandomNumbers = (max: number, limit: number) => {
   return Array.from(uniqueNumbers) as number[];
 };
 
+export const calculateScore = (correctAnswer: number, clientAnswer: number) => {
+  const maxScore = 100;
+  const yearDifference = Math.abs(correctAnswer - clientAnswer);
+  const score = Math.round(maxScore * Math.pow(0.25, yearDifference / 20));
+  return Math.max(0, score);
+};
+
 // const getPhotos = async () => {
 //   try {
 //     const response: any = await fetch(`http://localhost:8080/server/get-photos`, { method: "GET" });

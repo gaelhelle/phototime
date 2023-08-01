@@ -24,6 +24,9 @@ h2 {
 .example-thumb-indicator {
   @apply bg-primary h-[40px] w-[8px] -ml-[2px] block content-[""] absolute top-full mt-2 left-1/2 rounded-lg;
 }
+.example-thumb-arrows {
+  @apply border-primary text-primary rounded-full border flex items-center justify-center h-[30px] w-[30px] absolute top-full mt-[55px] left-1/2  -ml-[13px] rotate-90 opacity-50;
+}
 .horizontal-slider {
   @apply left-[43px];
 }

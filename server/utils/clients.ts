@@ -1,3 +1,6 @@
+import { rooms } from "./rooms";
+import { calculateScore } from "./utils";
+
 export interface clientType {
   id: string;
   roomMaster?: boolean;
@@ -42,5 +45,9 @@ export const updateClientAnswers = (socketId: string, answer: number) => {
   const client = clients.find((client) => client.id === socketId);
   if (!client) return;
   client["answers"].push(answer);
+
+  const correctAnswer = Number(rooms.find((room) => room.id === client.room)?.photos[client["answers"].length - 1].year);
+  client["scores"].push(calculateScore(correctAnswer, answer));
+
   return client;
 };
