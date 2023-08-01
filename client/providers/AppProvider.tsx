@@ -14,6 +14,7 @@ type AppContextType = {
   setUserAvatar: Dispatch<SetStateAction<any>>;
   joinedRoom: boolean;
   setJoinedRoom: Dispatch<SetStateAction<boolean>>;
+  devMode: boolean;
 };
 
 export const AppContext = createContext<AppContextType>(undefined as any);
@@ -23,6 +24,7 @@ export const AppProvider = ({ children }: any) => {
   const [userName, setUserName] = useState("");
   const [userAvatar, setUserAvatar] = useState<AvatarStyle | null>(null);
   const [joinedRoom, setJoinedRoom] = useState(false);
+  const [devMode, setDevMode] = useState(false);
 
   useEffect(() => {
     const existingUserName = Cookies.get("userName");
@@ -51,7 +53,20 @@ export const AppProvider = ({ children }: any) => {
     if (process.env.NEXT_PUBLIC_USE_COOKIES) Cookies.set("userAvatar", JSON.stringify(userAvatar));
   }, [userAvatar]);
 
-  const values = { userId, userName, setUserName, userAvatar, setUserAvatar, joinedRoom, setJoinedRoom };
+  useEffect(() => {
+    const handleDevMode = (event: KeyboardEvent) => {
+      if (event.key === "?") {
+        setDevMode((state) => !state);
+      }
+    };
+    window.addEventListener("keydown", handleDevMode);
+
+    return () => {
+      window.removeEventListener("keydown", handleDevMode);
+    };
+  }, []);
+
+  const values = { userId, userName, setUserName, userAvatar, setUserAvatar, joinedRoom, setJoinedRoom, devMode };
 
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;
 };
