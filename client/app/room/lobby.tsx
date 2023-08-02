@@ -64,12 +64,12 @@ export default function Lobby() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-between py-12 pb-24">
+    <div className="flex min-h-screen flex-col items-center justify-between py-12 pb-24 px-6 md:px-0">
       <Logo type="small" />
       <main className="w-full h-full flex-1 flex">
         <div className="container mx-auto flex-1">
-          <div className="flex gap-10 w-full items-start">
-            <div className="bg-[#2E373E] rounded-lg flex-1 p-10 flex items-center justify-center min-h-[600px]">
+          <div className="flex gap-10 w-full items-start flex-col lg:flex-row">
+            <div className="bg-[#2E373E] rounded-lg flex-1 p-10 flex items-center justify-center lg:min-h-[600px] w-full">
               <Game status={gameStatus} users={users} gameData={gameData} />
             </div>
             <Sidebar users={users} socketId={socketId} gameData={gameData} />

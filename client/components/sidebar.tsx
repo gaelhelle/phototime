@@ -23,7 +23,7 @@ export default function Sidebar(props: SidebarProps) {
   };
 
   return (
-    <div className="min-w-[400px]">
+    <div className="lg:min-w-[400px] w-full lg:w-auto">
       <div className="bg-[#2E373E] rounded-lg pb-6 mb-6">
         <h2 className="font-semibold px-10 py-6">Players ({users.length})</h2>
         <div className="bg-[#252D33] flex flex-col divide-y divide-black/20">

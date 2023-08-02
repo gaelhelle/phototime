@@ -11,7 +11,7 @@ interface joinRoomType {
 }
 
 export default function JoinRoom({ urlRoomId }: joinRoomType) {
-  const { userId, userName, setUserName, userAvatar, setUserAvatar, setJoinedRoom } = useContext(AppContext);
+  const { userName, setUserName, userAvatar, setUserAvatar, setJoinedRoom } = useContext(AppContext);
   const [createRoomLoader, setCreateRoomLoader] = useState(false);
   const [roomId, setRoomId] = useState(urlRoomId || "");
   const [joinRoomError, setJoinRoomError] = useState(false);
@@ -78,15 +78,15 @@ export default function JoinRoom({ urlRoomId }: joinRoomType) {
 
   return (
     <form onSubmit={handleJoinRoom}>
-      <div className="flex gap-10 w-full justify-between">
+      <div className="flex gap-10 w-full justify-between flex-col lg:flex-row px-6 md:px-0">
         <div className="bg-[#2E373E] rounded-lg p-10 flex-1">
-          <div className="flex justify-between gap-20">
-            <div className="w-full max-w-[400px]">
+          <div className="flex lg:justify-between gap-8 lg:gap-20">
+            <div className="w-full lg:max-w-[400px]">
               <h2 className="mb-6">Welcome to our party game</h2>
               <input type="text" title="username" className="bg-[#424E57] p-4 rounded-lg w-full" placeholder="Enter your name" required onChange={handleChangeName} value={userName} />
             </div>
-            <div className="flex gap-2 items-center justify-center w-full">
-              <div className="relative -top-4 -mb-4">{userAvatar && <Avatar style={{ width: "175px", height: "175px" }} avatarStyle={userAvatar.style} topType={userAvatar.topType} accessoriesType={userAvatar.accessoriesType} hairColor={userAvatar.hairColor} facialHairType={userAvatar.facialHairType} clotheType={userAvatar.clotheType} clotheColor={userAvatar.clotheColor} eyeType={userAvatar.eyeType} eyebrowType={userAvatar.eyebrowType} mouthType={userAvatar.mouthType} skinColor={userAvatar.skinColor} />}</div>
+            <div className="flex gap-2 items-center lg:justify-center">
+              <div className="relative lg:-top-4 lg:-mb-4">{userAvatar && <Avatar className="w-[100px] h-[100px] md:w-[120px] md:h-[120px] lg:w-[175px] lg:h-[175px]" avatarStyle={userAvatar.style} topType={userAvatar.topType} accessoriesType={userAvatar.accessoriesType} hairColor={userAvatar.hairColor} facialHairType={userAvatar.facialHairType} clotheType={userAvatar.clotheType} clotheColor={userAvatar.clotheColor} eyeType={userAvatar.eyeType} eyebrowType={userAvatar.eyebrowType} mouthType={userAvatar.mouthType} skinColor={userAvatar.skinColor} />}</div>
               <div onClick={handleGenerateRandomAvatar} className="cursor-pointer relative top-4 hover:opacity-80 active:scale-95 transition-all">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-8 h-8">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />

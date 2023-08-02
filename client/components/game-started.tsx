@@ -46,7 +46,7 @@ export default function GameStarted(props: GameStartedProps | any) {
 
   return (
     <div className="flex w-full flex-col self-start">
-      <div>
+      <div className="hidden lg:block">
         <div className="inline-block">
           <div className="bg-black/40 rounded-lg gap-2 flex items-center w-auto px-2.5 py-2 -mt-8 -mb-1 text-xs text-white/80">
             <span>
@@ -76,7 +76,7 @@ export default function GameStarted(props: GameStartedProps | any) {
 
       <div className="mt-2 mb-10">
         <ReactSlider
-          className="horizontal-slider"
+          className="horizontal-slider w-[20%]"
           value={sliderValue}
           onChange={handleSliderChange}
           min={Number(process.env.NEXT_PUBLIC_GAME_MIN_YEAR)}
