@@ -3,10 +3,8 @@
 import { AppContext } from "@/providers/AppProvider";
 import generateRandomAvatar from "@/utils/utils";
 import Avatar from "avataaars";
-import Cookies from "js-cookie";
-import { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
-import { SocketContext } from "@/providers/SocketProvider";
 
 interface joinRoomType {
   urlRoomId?: string | null;
