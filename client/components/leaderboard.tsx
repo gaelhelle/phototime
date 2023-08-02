@@ -7,6 +7,8 @@ interface LeaderboardProps {
 export default function Leaderboard(props: LeaderboardProps) {
   const { users } = props;
 
+  const sortedUsers = users?.sort((a, b) => b.scores.reduce((acc: number, score: number) => acc + score) - a.scores.reduce((acc: number, score: number) => acc + score));
+
   return (
     <div className="self-start w-full">
       <table className="table-auto w-full text-left text-sm">
@@ -16,7 +18,7 @@ export default function Leaderboard(props: LeaderboardProps) {
           <th className="p-4 pt-0 font-normal">Points</th>
         </thead>
         <tbody>
-          {users?.map((user, index) => (
+          {sortedUsers?.map((user, index) => (
             <React.Fragment key={index}>
               <tr className="bg-black/40 rounded-lg gap-2 px-2.5 py-2 text-white/80 mb-2">
                 <td className="p-4 rounded-l-lg">

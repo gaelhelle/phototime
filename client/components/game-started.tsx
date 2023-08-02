@@ -24,8 +24,8 @@ export default function GameStarted(props: GameStartedProps | any) {
 
   if (current > settings?.max - 1) {
     return (
-      <div>
-        <h2>Thanks for playing</h2>
+      <div className="text-center">
+        <h2 className="mb-2">Thanks for playing</h2>
         <div>Waiting for other players to finish</div>
       </div>
     );
