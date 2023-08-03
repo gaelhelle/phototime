@@ -77,6 +77,10 @@ server.listen(port, () => {
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get("/server/", async (req, res) => {
+  res.status(201).send("API is running");
+});
+
 app.post("/server/join-room", async (req, res) => {
   try {
     const roomId = req.body?.roomId;
@@ -145,4 +149,4 @@ app.get("/server/get-photos", async (req, res) => {
   }
 });
 
-scheduleArchiving();
+// scheduleArchiving();
