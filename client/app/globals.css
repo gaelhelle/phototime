@@ -49,3 +49,17 @@ h2 {
   top: calc(50% - 10px);
   border-radius: 20px;
 }
+
+/* Loader */
+.spinner_ajPY--parent {
+  @apply w-4 h-4;
+}
+.spinner_ajPY {
+  transform-origin: center;
+  animation: spinner_AtaB 0.75s infinite linear;
+}
+@keyframes spinner_AtaB {
+  100% {
+    transform: rotate(360deg);
+  }
+}
